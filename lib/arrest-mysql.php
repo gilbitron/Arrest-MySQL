@@ -11,6 +11,7 @@
  * Author: Gilbert Pellegrom
  * Website: http://dev7studios.com
  * Date: Jan 2013
+ * Version 1.0
  */
 require('lib/db.php');
 
@@ -193,7 +194,7 @@ class ArrestMySQL {
         if($data = $this->_post()){
             $this->db->insert($table, $data)
                      ->query();
-            $success = array('error' => array(
+            $success = array('success' => array(
                 'message' => 'Success',
                 'code' => 200
             ));
@@ -288,7 +289,7 @@ class ArrestMySQL {
                      ->set($this->_put())
                      ->where($index, $id)
                      ->query();
-            $success = array('error' => array(
+            $success = array('success' => array(
                 'message' => 'Success',
                 'code' => 200
             ));
@@ -330,7 +331,7 @@ class ArrestMySQL {
             $this->db->delete($table)
                  ->where($index, $id)
                  ->query();
-            $success = array('error' => array(
+            $success = array('success' => array(
                 'message' => 'Success',
                 'code' => 200
             ));
