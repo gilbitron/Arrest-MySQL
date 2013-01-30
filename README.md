@@ -1,4 +1,5 @@
 Arrest-MySQL
 ============
 
-A "plug-n-play" RESTful API for your MySQL database.
+Arrest MySQL is a "plug-n-play" RESTful API for your MySQL database.
+
