@@ -18,7 +18,7 @@ Or, if you only want to get one customer, then you would append the customer `id
 
 ##Requirements
 
-- PHP 5.3+
+- PHP 5.3+ & PDO
 - MySQL 5.1+ / SQLite 3.0+
 
 ##Installation
