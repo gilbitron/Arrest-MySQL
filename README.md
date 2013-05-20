@@ -131,7 +131,10 @@ The following codes and message are avaiable:
 
 ##Todo
 
-- Implement bulk insert (`POST`) support.
+- support for JSON payloads in `POST` and `PUT` (optionally gzipped)
+- support for bulk inserts in `POST`
+- support for HTTP method overrides
+- support for JSON-P responses
 
 ##Credits
 
