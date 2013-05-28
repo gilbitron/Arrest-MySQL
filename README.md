@@ -39,6 +39,8 @@ Additionally, you may wish to restrict access to specific IP addresses. If so, a
 
 After you're done editing the file, place it in a publicly accessible directory (feel free to change the filename to whatever you want).
 
+***Nota bene:*** You must access the file directly, including it from another file won't work.
+
 ##API Design
 
 The actual API design is very straightforward and follows the design patterns of the majority of APIs.
