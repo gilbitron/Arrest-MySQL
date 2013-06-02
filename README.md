@@ -47,6 +47,7 @@ The actual API design is very straightforward and follows the design patterns of
 
     (C)reate > POST   /table
 	(R)ead   > GET    /table[/id]
+	(R)ead   > GET    /table[/column/content]
 	(U)pdate > PUT    /table/id
 	(D)elete > DELETE /table/id
 
@@ -57,6 +58,9 @@ To put this into practice below are some example of how you would use the Arrest
 
 	# Get a single row from the "customers" table (where "123" is the ID)
 	GET http://api.example.com/customers/123/
+
+	# Get all rows from the "customers" table where the "country" field matches "Australia" (`LIKE`)
+	GET http://api.example.com/customers/country/Australia/
 
 	# Get 50 rows from the "customers" table
 	GET http://api.example.com/customers/?limit=50
@@ -72,13 +76,15 @@ To put this into practice below are some example of how you would use the Arrest
 
 	# Delete customer "123" from the "customers" table
 	DELETE http://api.example.com/customers/123/
-    
+
 Please note that `GET` calls accept the following query string variables:
 
 - `by` (column to order by)
   - `order` (order direction: `ASC` or `DESC`)
 - `limit` (`LIMIT x` SQL clause)
   - `offset` (`OFFSET x` SQL clause)
+
+Additionally, `POST` and `PUT` requests accept JSON-encoded and/or zlib-compressed payloads.
 
 ##Responses
 
@@ -133,14 +139,14 @@ The following codes and message are avaiable:
 
 ##Todo
 
-- support for JSON payloads in `POST` and `PUT` (optionally gzipped)
+- ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
 - support for bulk inserts in `POST`
 - support for HTTP method overrides
 - support for JSON-P responses
 
 ##Credits
 
-ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Arrest-MySQL).
+ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Arrest-MySQL) with several additional features and optimizations.
 
 ##License (MIT)
 
