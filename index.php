@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.0.0 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.2.0 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -18,7 +18,7 @@ if (strcmp('cli', PHP_SAPI) === 0)
 	exit('Arrest-DB should not be ran from CLI.');
 }
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 if ((empty($clients) !== true) && (in_array($_SERVER['REMOTE_ADDR'], (array) $clients) !== true))
 {
@@ -31,7 +31,7 @@ if ((empty($clients) !== true) && (in_array($_SERVER['REMOTE_ADDR'], (array) $cl
 		),
 	);
 
-	exit(json_encode($result, 480));
+	exit(json_encode($result, 448));
 }
 
 else if (ArrestDB::Query($dsn) === false)
@@ -45,8 +45,66 @@ else if (ArrestDB::Query($dsn) === false)
 		),
 	);
 
-	exit(json_encode($result, 480));
+	exit(json_encode($result, 448));
 }
+
+ArrestDB::Serve('GET', '/(#any)/(#any)/(#any)', function ($table, $key, $value)
+{
+	$query = array
+	(
+		sprintf('SELECT * FROM `%s`', $table),
+		sprintf('WHERE `%s` LIKE ?', $key),
+	);
+
+	if (isset($_GET['by']) === true)
+	{
+		if (isset($_GET['order']) !== true)
+		{
+			$_GET['order'] = 'ASC';
+		}
+
+		$query[] = sprintf('ORDER BY `%s` %s', $_GET['by'], $_GET['order']);
+	}
+
+	if (isset($_GET['limit']) === true)
+	{
+		$query[] = sprintf('LIMIT %u', $_GET['limit']);
+
+		if (isset($_GET['offset']) === true)
+		{
+			$query[] = sprintf('OFFSET %u', $_GET['offset']);
+		}
+	}
+
+	$query = sprintf('%s;', implode(' ', $query));
+	$result = ArrestDB::Query($query, $value);
+
+	if ($result === false)
+	{
+		$result = array
+		(
+			'error' => array
+			(
+				'code' => 404,
+				'status' => 'Not Found',
+			),
+		);
+	}
+
+	else if (empty($result) === true)
+	{
+		$result = array
+		(
+			'error' => array
+			(
+				'code' => 204,
+				'status' => 'No Content',
+			),
+		);
+	}
+
+	return json_encode($result, 448);
+});
 
 ArrestDB::Serve('GET', '/(#any)/(#num)?', function ($table, $id = null)
 {
@@ -115,8 +173,36 @@ ArrestDB::Serve('GET', '/(#any)/(#num)?', function ($table, $id = null)
 		$result = array_shift($result);
 	}
 
-	return json_encode($result, 480);
+	return json_encode($result, 448);
 });
+
+if (in_array($http = strtoupper($_SERVER['REQUEST_METHOD']), array('POST', 'PUT')) === true)
+{
+	if (preg_match('~^\x78[\x01\x5E\x9C\xDA]~', $data = file_get_contents('php://input')) > 0)
+	{
+		$data = gzuncompress($data);
+	}
+
+	if ((array_key_exists('CONTENT_TYPE', $_SERVER) === true) && (empty($data) !== true))
+	{
+		if (strcasecmp($_SERVER['CONTENT_TYPE'], 'application/json') === 0)
+		{
+			$GLOBALS['_' . $http] = json_decode($data, true);
+		}
+
+		else if ((strcasecmp($_SERVER['CONTENT_TYPE'], 'application/x-www-form-urlencoded') === 0) && (strcasecmp($_SERVER['REQUEST_METHOD'], 'PUT') === 0))
+		{
+			parse_str($data, $GLOBALS['_' . $http]);
+		}
+	}
+
+	if ((isset($GLOBALS['_' . $http]) !== true) || (is_array($GLOBALS['_' . $http]) !== true))
+	{
+		$GLOBALS['_' . $http] = array();
+	}
+
+	unset($data);
+}
 
 ArrestDB::Serve('POST', '/(#any)', function ($table)
 {
@@ -174,14 +260,12 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 		}
 	}
 
-	return json_encode($result, 480);
+	return json_encode($result, 448);
 });
 
 ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 {
-	parse_str(file_get_contents('php://input'), $_PUT);
-
-	if (empty($_PUT) === true)
+	if (empty($GLOBALS['_PUT']) === true)
 	{
 		$result = array
 		(
@@ -197,7 +281,7 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 	{
 		$data = array();
 
-		foreach ($_PUT as $key => $value)
+		foreach ($GLOBALS['_PUT'] as $key => $value)
 		{
 			$data[$key] = sprintf('`%s` = ?', $key);
 		}
@@ -208,7 +292,7 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 		);
 
 		$query = sprintf('%s;', implode(' ', $query));
-		$result = ArrestDB::Query($query, $_PUT);
+		$result = ArrestDB::Query($query, $GLOBALS['_PUT']);
 
 		if ($result === false)
 		{
@@ -235,7 +319,7 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 		}
 	}
 
-	return json_encode($result, 480);
+	return json_encode($result, 448);
 });
 
 ArrestDB::Serve('DELETE', '/(#any)/(#num)', function ($table, $id)
@@ -284,7 +368,7 @@ ArrestDB::Serve('DELETE', '/(#any)/(#num)', function ($table, $id)
 		);
 	}
 
-	return json_encode($result, 480);
+	return json_encode($result, 448);
 });
 
 $result = array
@@ -296,7 +380,7 @@ $result = array
 	),
 );
 
-exit(json_encode($result, 480));
+exit(json_encode($result, 448));
 
 class ArrestDB
 {
