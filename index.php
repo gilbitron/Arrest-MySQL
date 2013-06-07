@@ -9,16 +9,14 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.2.0 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.3.0 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
 if (strcmp('cli', PHP_SAPI) === 0)
 {
-	exit('Arrest-DB should not be ran from CLI.');
+	exit('Arrest-DB should not be run from CLI.');
 }
-
-header('Content-Type: application/json; charset=utf-8');
 
 if ((empty($clients) !== true) && (in_array($_SERVER['REMOTE_ADDR'], (array) $clients) !== true))
 {
@@ -31,7 +29,7 @@ if ((empty($clients) !== true) && (in_array($_SERVER['REMOTE_ADDR'], (array) $cl
 		),
 	);
 
-	exit(json_encode($result, 448));
+	exit(ArrestDB::Reply($result));
 }
 
 else if (ArrestDB::Query($dsn) === false)
@@ -45,7 +43,7 @@ else if (ArrestDB::Query($dsn) === false)
 		),
 	);
 
-	exit(json_encode($result, 448));
+	exit(ArrestDB::Reply($result));
 }
 
 ArrestDB::Serve('GET', '/(#any)/(#any)/(#any)', function ($table, $key, $value)
@@ -103,7 +101,7 @@ ArrestDB::Serve('GET', '/(#any)/(#any)/(#any)', function ($table, $key, $value)
 		);
 	}
 
-	return json_encode($result, 448);
+	return ArrestDB::Reply($result);
 });
 
 ArrestDB::Serve('GET', '/(#any)/(#num)?', function ($table, $id = null)
@@ -173,7 +171,56 @@ ArrestDB::Serve('GET', '/(#any)/(#num)?', function ($table, $id = null)
 		$result = array_shift($result);
 	}
 
-	return json_encode($result, 448);
+	return ArrestDB::Reply($result);
+});
+
+ArrestDB::Serve('DELETE', '/(#any)/(#num)', function ($table, $id)
+{
+	$query = array
+	(
+		sprintf('DELETE FROM `%s` WHERE `%s` = ?', $table, 'id'),
+	);
+
+	$query = sprintf('%s;', implode(' ', $query));
+	$result = ArrestDB::Query($query, $id);
+
+	if ($result === false)
+	{
+		$result = array
+		(
+			'error' => array
+			(
+				'code' => 404,
+				'status' => 'Not Found',
+			),
+		);
+	}
+
+	else if (empty($result) === true)
+	{
+		$result = array
+		(
+			'error' => array
+			(
+				'code' => 204,
+				'status' => 'No Content',
+			),
+		);
+	}
+
+	else
+	{
+		$result = array
+		(
+			'success' => array
+			(
+				'code' => 200,
+				'status' => 'OK',
+			),
+		);
+	}
+
+	return ArrestDB::Reply($result);
 });
 
 if (in_array($http = strtoupper($_SERVER['REQUEST_METHOD']), array('POST', 'PUT')) === true)
@@ -260,7 +307,7 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 		}
 	}
 
-	return json_encode($result, 448);
+	return ArrestDB::Reply($result);
 });
 
 ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
@@ -319,56 +366,7 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 		}
 	}
 
-	return json_encode($result, 448);
-});
-
-ArrestDB::Serve('DELETE', '/(#any)/(#num)', function ($table, $id)
-{
-	$query = array
-	(
-		sprintf('DELETE FROM `%s` WHERE `%s` = ?', $table, 'id'),
-	);
-
-	$query = sprintf('%s;', implode(' ', $query));
-	$result = ArrestDB::Query($query, $id);
-
-	if ($result === false)
-	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 404,
-				'status' => 'Not Found',
-			),
-		);
-	}
-
-	else if (empty($result) === true)
-	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 204,
-				'status' => 'No Content',
-			),
-		);
-	}
-
-	else
-	{
-		$result = array
-		(
-			'success' => array
-			(
-				'code' => 200,
-				'status' => 'OK',
-			),
-		);
-	}
-
-	return json_encode($result, 448);
+	return ArrestDB::Reply($result);
 });
 
 $result = array
@@ -380,7 +378,7 @@ $result = array
 	),
 );
 
-exit(json_encode($result, 448));
+exit(ArrestDB::Reply($result));
 
 class ArrestDB
 {
@@ -527,6 +525,24 @@ class ArrestDB
 		}
 
 		return (isset($db) === true) ? $db : false;
+	}
+
+	public static function Reply($data)
+	{
+		$callback = null;
+		$response = json_encode($data, 448);
+
+		if (array_key_exists('callback', $_GET) === true)
+		{
+			$callback = trim(preg_replace('~[^[:alnum:]\[\]_.]~', '', $_GET['callback']));
+		}
+
+		if (headers_sent() !== true)
+		{
+			header(sprintf('Content-Type: application/%s; charset=utf-8', (empty($callback) === true) ? 'json' : 'javascript'));
+		}
+
+		return preg_replace('~^[(](.+)[)];$~s', '$1', sprintf('%s(%s);', $callback, $response));
 	}
 
 	public static function Serve($on = null, $route = null, $callback = null)
