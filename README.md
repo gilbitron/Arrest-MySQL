@@ -8,13 +8,13 @@ Lets suppose you have set up ArrestDB at `http://api.example.com/` and your data
 
 To get a list of customers you would simply need to do:
 
-    GET http://api.example.com/customers/
+	GET http://api.example.com/customers/
 
 Where `customers` is the table name. As a response you would get a JSON formatted list of customers.
 
 Or, if you only want to get one customer, then you would append the customer `id` to the URL:
 
-    GET http://api.example.com/customers/123/
+	GET http://api.example.com/customers/123/
 
 ##Requirements
 
@@ -30,7 +30,7 @@ Edit `index.php` and change the `$dsn` variable located at the top, here are som
 
 Additionally, you may wish to restrict access to specific IP addresses. If so, add them in the `$clients` array:
 
-    $clients = array
+	$clients = array
 	(
 		'127.0.0.1',
 		'127.0.0.2',
@@ -45,7 +45,7 @@ After you're done editing the file, place it in a publicly accessible directory 
 
 The actual API design is very straightforward and follows the design patterns of the majority of APIs.
 
-    (C)reate > POST   /table
+	(C)reate > POST   /table
 	(R)ead   > GET    /table[/id]
 	(R)ead   > GET    /table[/column/content]
 	(U)pdate > PUT    /table/id
@@ -53,7 +53,7 @@ The actual API design is very straightforward and follows the design patterns of
 
 To put this into practice below are some example of how you would use the ArrestDB API:
 
-    # Get all rows from the "customers" table
+	# Get all rows from the "customers" table
 	GET http://api.example.com/customers/
 
 	# Get a single row from the "customers" table (where "123" is the ID)
@@ -90,7 +90,7 @@ Additionally, `POST` and `PUT` requests accept JSON-encoded and/or zlib-compress
 
 All responses are in the JSON format. For example a `GET` response from the `customers` table might look like:
 
-    [
+	[
 	    {
 	        "id": "114",
 	        "customerName": "Australian Collectors, Co.",
@@ -112,7 +112,7 @@ All responses are in the JSON format. For example a `GET` response from the `cus
 
 Successful `POST`, `PUT`, and `DELETE` responses will look like:
 
-    {
+	{
 	    "success": {
 	        "code": 200,
 	        "status": "OK"
@@ -121,7 +121,7 @@ Successful `POST`, `PUT`, and `DELETE` responses will look like:
 
 Errors are expressed in the format:
 
-    {
+	{
 	    "error": {
 	        "code": 204,
 	        "status": "No Content"
@@ -137,16 +137,20 @@ The following codes and message are avaiable:
 * `404` Not Found
 * `503` Service Unavailable
 
+Also, if the `callback` query string is set *and* is a valid Javascript callback, the returned result will be a [JSON-P response](http://en.wikipedia.org/wiki/JSONP):
+
+	callback(JSON);
+
 ##Todo
 
 - ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
 - support for bulk inserts in `POST`
 - support for HTTP method overrides
-- support for JSON-P responses
+- ~~support for JSON-P responses~~
 
 ##Credits
 
-ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Arrest-MySQL) with several additional features and optimizations.
+ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Arrest-MySQL) with several optimizations and additional features.
 
 ##License (MIT)
 
