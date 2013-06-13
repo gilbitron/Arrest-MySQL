@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.3.0 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.3.1 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -288,8 +288,8 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 			(
 				'error' => array
 				(
-					'code' => 404,
-					'status' => 'Not Found',
+					'code' => 409,
+					'status' => 'Conflict',
 				),
 			);
 		}
@@ -300,8 +300,8 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 			(
 				'success' => array
 				(
-					'code' => 200,
-					'status' => 'OK',
+					'code' => 201,
+					'status' => 'Created',
 				),
 			);
 		}
@@ -347,8 +347,8 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 			(
 				'error' => array
 				(
-					'code' => 404,
-					'status' => 'Not Found',
+					'code' => 409,
+					'status' => 'Conflict',
 				),
 			);
 		}
