@@ -110,7 +110,16 @@ All responses are in the JSON format. For example a `GET` response from the `cus
 	]
 
 
-Successful `POST`, `PUT`, and `DELETE` responses will look like:
+Successful `POST` responses will look like:
+
+	{
+	    "success": {
+	        "code": 201,
+	        "status": "Created"
+	    }
+	}
+
+Successful `PUT` and `DELETE` responses will look like:
 
 	{
 	    "success": {
@@ -131,10 +140,12 @@ Errors are expressed in the format:
 The following codes and message are avaiable:
 
 * `200` OK
+* `201` Created
 * `204` No Content
 * `400` Bad Request
 * `403` Forbidden
 * `404` Not Found
+* `409` Conflict
 * `503` Service Unavailable
 
 Also, if the `callback` query string is set *and* is a valid Javascript callback, the returned result will be a [JSON-P response](http://en.wikipedia.org/wiki/JSONP):
