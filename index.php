@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.3.1 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.4.0 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -46,12 +46,22 @@ else if (ArrestDB::Query($dsn) === false)
 	exit(ArrestDB::Reply($result));
 }
 
-ArrestDB::Serve('GET', '/(#any)/(#any)/(#any)', function ($table, $key, $value)
+if (array_key_exists('_method', $_GET) === true)
+{
+	$_SERVER['REQUEST_METHOD'] = strtoupper(trim($_GET['_method']));
+}
+
+else if (array_key_exists('HTTP_X_HTTP_METHOD_OVERRIDE', $_SERVER) === true)
+{
+	$_SERVER['REQUEST_METHOD'] = strtoupper(trim($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']));
+}
+
+ArrestDB::Serve('GET', '/(#any)/(#any)/(#any)', function ($table, $id, $data)
 {
 	$query = array
 	(
 		sprintf('SELECT * FROM `%s`', $table),
-		sprintf('WHERE `%s` LIKE ?', $key),
+		sprintf('WHERE `%s` LIKE ?', $id),
 	);
 
 	if (isset($_GET['by']) === true)
@@ -75,7 +85,7 @@ ArrestDB::Serve('GET', '/(#any)/(#any)/(#any)', function ($table, $key, $value)
 	}
 
 	$query = sprintf('%s;', implode(' ', $query));
-	$result = ArrestDB::Query($query, $value);
+	$result = ArrestDB::Query($query, $data);
 
 	if ($result === false)
 	{
@@ -514,11 +524,6 @@ class ArrestDB
 			}
 		}
 
-		catch (\PDOException $e)
-		{
-			return false;
-		}
-
 		catch (\Exception $e)
 		{
 			return false;
@@ -529,20 +534,27 @@ class ArrestDB
 
 	public static function Reply($data)
 	{
-		$callback = null;
-		$response = json_encode($data, 448);
-
-		if (array_key_exists('callback', $_GET) === true)
+		if (($result = json_encode($data, 448)) !== false)
 		{
-			$callback = trim(preg_replace('~[^[:alnum:]\[\]_.]~', '', $_GET['callback']));
+			$callback = null;
+
+			if (array_key_exists('callback', $_GET) === true)
+			{
+				$callback = trim(preg_replace('~[^[:alnum:]\[\]_.]~', '', $_GET['callback']));
+
+				if (empty($callback) !== true)
+				{
+					$result = sprintf('%s(%s);', $callback, $result);
+				}
+			}
+
+			if (headers_sent() !== true)
+			{
+				header(sprintf('Content-Type: application/%s; charset=utf-8', (empty($callback) === true) ? 'json' : 'javascript'));
+			}
 		}
 
-		if (headers_sent() !== true)
-		{
-			header(sprintf('Content-Type: application/%s; charset=utf-8', (empty($callback) === true) ? 'json' : 'javascript'));
-		}
-
-		return preg_replace('~^[(](.+)[)];$~s', '$1', sprintf('%s(%s);', $callback, $response));
+		return $result;
 	}
 
 	public static function Serve($on = null, $route = null, $callback = null)

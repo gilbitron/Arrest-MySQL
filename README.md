@@ -4,7 +4,7 @@ ArrestDB is a "plug-n-play" RESTful API for SQLite and MySQL databases.
 
 ArrestDB provides a REST API that maps directly to your database stucture with no configuation.
 
-Lets suppose you have set up ArrestDB at `http://api.example.com/` and your database has a table in it called `customers`.
+Lets suppose you have set up ArrestDB at `http://api.example.com/` and a table named `customers`.
 
 To get a list of customers you would simply need to do:
 
@@ -37,7 +37,7 @@ Additionally, you may wish to restrict access to specific IP addresses. If so, a
 		'127.0.0.3',
 	);
 
-After you're done editing the file, place it in a publicly accessible directory (feel free to change the filename to whatever you want).
+After you're done editing the file, place it in a public directory (feel free to change the filename).
 
 ***Nota bene:*** You must access the file directly, including it from another file won't work.
 
@@ -86,6 +86,11 @@ Please note that `GET` calls accept the following query string variables:
 
 Additionally, `POST` and `PUT` requests accept JSON-encoded and/or zlib-compressed payloads.
 
+If your REST client does not support certain requests, you can use the `X-HTTP-Method-Override` header:
+
+- `PUT` = `POST` + `X-HTTP-Method-Override: PUT`
+- `DELETE` = `GET` + `X-HTTP-Method-Override: DELETE`
+
 ##Responses
 
 All responses are in the JSON format. For example a `GET` response from the `customers` table might look like:
@@ -109,7 +114,6 @@ All responses are in the JSON format. For example a `GET` response from the `cus
 	    ...
 	]
 
-
 Successful `POST` responses will look like:
 
 	{
@@ -132,8 +136,8 @@ Errors are expressed in the format:
 
 	{
 	    "error": {
-	        "code": 204,
-	        "status": "No Content"
+	        "code": 400,
+	        "status": "Bad Request"
 	    }
 	}
 
@@ -148,7 +152,7 @@ The following codes and message are avaiable:
 * `409` Conflict
 * `503` Service Unavailable
 
-Also, if the `callback` query string is set *and* is a valid Javascript callback, the returned result will be a [JSON-P response](http://en.wikipedia.org/wiki/JSONP):
+Also, if the `callback` query string is set *and* is valid, the returned result will be a [JSON-P response](http://en.wikipedia.org/wiki/JSONP):
 
 	callback(JSON);
 
@@ -156,7 +160,7 @@ Also, if the `callback` query string is set *and* is a valid Javascript callback
 
 - ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
 - support for bulk inserts in `POST`
-- support for HTTP method overrides
+- ~~support for HTTP method overrides using the `X-HTTP-Method-Override` header~~
 - ~~support for JSON-P responses~~
 
 ##Credits
