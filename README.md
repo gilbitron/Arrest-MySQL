@@ -28,7 +28,7 @@ Edit `index.php` and change the `$dsn` variable located at the top, here are som
 - SQLite: `$dsn = 'sqlite://./path/to/database.sqlite';`
 - MySQL: `$dsn = 'mysql://[user[:pass]@]host[:port]/db/;`
 
-Additionally, you may wish to restrict access to specific IP addresses. If so, add them in the `$clients` array:
+If you want to restrict access to specific IP addresses, add them to the `$clients` array:
 
 	$clients = array
 	(
@@ -91,9 +91,11 @@ If your REST client does not support certain requests, you can use the `X-HTTP-M
 - `PUT` = `POST` + `X-HTTP-Method-Override: PUT`
 - `DELETE` = `GET` + `X-HTTP-Method-Override: DELETE`
 
+Alternatively, you can also override the HTTP method by using the `_method` query string parameter.
+
 ##Responses
 
-All responses are in the JSON format. For example a `GET` response from the `customers` table might look like:
+All responses are in the JSON format. A `GET` response from the `customers` table might look like this:
 
 	[
 	    {
