@@ -15,7 +15,15 @@
  */
 require('lib/db.php');
 
+define('DEBUG_TABLE_ERROR_MSG', 'Either the table does not exists or you have misconfigured the subdir (base_uri) in index.php');
+
 class ArrestMySQL {
+
+    /**
+     * Makes passing boolean parameters easier to read and understand
+     */
+    const DEBUG_ON = true;
+    const DEBUG_OFF = false;
 
     /**
      * The instance of Database
@@ -41,6 +49,12 @@ class ArrestMySQL {
      * @var array
      */
     private $table_index;
+    /**
+     * Debug mode
+     *
+     * @var boolean
+     */
+    private $debug;
 
     /**
      * Create an instance, optionally setting a base URI
@@ -58,11 +72,12 @@ class ArrestMySQL {
      * @param string $base_uri Optional base URI if not in root folder
      * @access public
      */
-    public function __construct($db_config, $base_uri = '') 
+    public function __construct($db_config, $base_uri = '', $debug = false) 
     {
         $this->db = new Database($db_config);
         if(!$this->db->init()) throw new Exception($this->db->get_error());
         
+	$this->debug = $debug;
 	$this->table_index = array();
 	    $this->db_structure = $this->map_db($db_config['database']);
         $this->segments = $this->get_uri_segments($base_uri);
@@ -205,6 +220,12 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
@@ -240,6 +261,13 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'index' => $id,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
@@ -292,6 +320,13 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'index' => $id,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
@@ -335,6 +370,13 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'index' => $id,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
