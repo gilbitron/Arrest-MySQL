@@ -279,6 +279,8 @@ class ArrestMySQL {
                      ->where($index, $id)
                      ->query();
             if($result = $this->db->fetch_array()){
+		// map to utf8 to avoid broken json
+		$result = array_map('utf8_encode', $result);
                 die(json_encode($result));
             } else {
                 $error = array('error' => array(
