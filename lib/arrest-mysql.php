@@ -63,9 +63,9 @@ class ArrestMySQL {
         $this->db = new Database($db_config);
         if(!$this->db->init()) throw new Exception($this->db->get_error());
         
+	$this->table_index = array();
 	    $this->db_structure = $this->map_db($db_config['database']);
         $this->segments = $this->get_uri_segments($base_uri);
-        $this->table_index = array();
     }
     
     /**
@@ -132,6 +132,23 @@ class ArrestMySQL {
     	    $this->db->query('SHOW COLUMNS FROM '. $table_name);
     	    $fields = $this->db->fetch_all();
     	    $tables_arr[$table_name] = $fields;
+	    
+	    // loop thru table columns to find any PRIMARY keys
+            $fields_count = count($fields);
+            $fieldKeys = array();
+            for ($i = 0; $i < $fields_count; $i++) {
+                $field = $fields[$i];
+
+                // @NOTE: If Key is PRI, the column is a PRIMARY KEY or is one of the columns in a multiple-column (composite primary key) PRIMARY KEY.
+                if (strcasecmp($field['Key'], 'PRI') == 0) { // binary safe case insensitive comparison
+                    array_push($fieldKeys, $field['Field']);
+                }
+            }
+
+            // @WARNING: as lib/db.php is using index() as field=value in WHERE CLAUSE, on tables with composite PRIMARY KEY extract last of the keys
+            if (count($fieldKeys) > 0) {
+                $this->table_index[$table_name] = end($fieldKeys);
+            }
 	    }
 	    return $tables_arr;
     }
