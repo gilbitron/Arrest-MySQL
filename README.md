@@ -160,12 +160,12 @@ Also, if the `callback` query string is set *and* is valid, the returned result 
 
 	callback(JSON);
 
-##Todo
+##Changelog
 
-- ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
-- ~~support for bulk inserts in `POST`~~
-- ~~support for HTTP method overrides using the `X-HTTP-Method-Override` header~~
-- ~~support for JSON-P responses~~
+- **1.2.0** ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
+- **1.3.0** ~~support for JSON-P responses~~
+- **1.4.0** ~~support for HTTP method overrides using the `X-HTTP-Method-Override` header~~
+- **1.5.0** ~~support for bulk inserts in `POST`~~
 
 ##Credits
 
