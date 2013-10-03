@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.4.0 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.5.0 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -275,22 +275,58 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 		);
 	}
 
-	else
+	else if (is_array($_POST) === true)
 	{
-		$data = array();
+		$queries = array();
 
-		foreach ($_POST as $key => $value)
+		if (count($_POST) == count($_POST, COUNT_RECURSIVE))
 		{
-			$data[sprintf('`%s`', $key)] = '?';
+			$_POST = array($_POST);
 		}
 
-		$query = array
-		(
-			sprintf('INSERT INTO `%s` (%s) VALUES (%s)', $table, implode(', ', array_keys($data)), implode(', ', $data)),
-		);
+		foreach ($_POST as $row)
+		{
+			$data = array();
 
-		$query = sprintf('%s;', implode(' ', $query));
-		$result = ArrestDB::Query($query, $_POST);
+			foreach ($row as $key => $value)
+			{
+				$data[sprintf('`%s`', $key)] = '?';
+			}
+
+			$query = array
+			(
+				sprintf('INSERT INTO `%s` (%s) VALUES (%s)', $table, implode(', ', array_keys($data)), implode(', ', $data)),
+			);
+
+			$queries[] = array
+			(
+				sprintf('%s;', implode(' ', $query)),
+				$data,
+			);
+		}
+
+		if (count($queries) > 1)
+		{
+			ArrestDB::Query()->beginTransaction();
+
+			while (is_null($query = array_shift($queries)) !== true)
+			{
+				if (($result = ArrestDB::Query($query[0], $query[1])) === false)
+				{
+					ArrestDB::Query()->rollBack(); break;
+				}
+			}
+
+			if (($result !== false) && (ArrestDB::Query()->inTransaction() === true))
+			{
+				$result = ArrestDB::Query()->commit();
+			}
+		}
+
+		else if (is_null($query = array_shift($queries)) !== true)
+		{
+			$result = ArrestDB::Query($query[0], $query[1]);
+		}
 
 		if ($result === false)
 		{
@@ -334,7 +370,7 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 		);
 	}
 
-	else
+	else if (is_array($GLOBALS['_PUT']) === true)
 	{
 		$data = array();
 
@@ -464,7 +500,6 @@ class ArrestDB
 						'cache_size' => '8192',
 						'encoding' => '"UTF-8"',
 						'foreign_keys' => 'ON',
-						'journal_mode' => 'WAL',
 						'journal_size_limit' => '67110000',
 						'legacy_file_format' => 'OFF',
 						'page_size' => '4096',
@@ -472,6 +507,7 @@ class ArrestDB
 						'secure_delete' => 'ON',
 						'synchronous' => 'NORMAL',
 						'temp_store' => 'MEMORY',
+						'journal_mode' => 'WAL',
 						'wal_autocheckpoint' => '4096',
 					);
 
