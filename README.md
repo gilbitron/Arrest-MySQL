@@ -93,6 +93,8 @@ If your REST client does not support certain requests, you can use the `X-HTTP-M
 
 Alternatively, you can also override the HTTP method by using the `_method` query string parameter.
 
+As of version 1.5.0, it's also possible to atomically `INSERT` a batch of records by POSTing an array of arrays.
+
 ##Responses
 
 All responses are in the JSON format. A `GET` response from the `customers` table might look like this:
@@ -161,7 +163,7 @@ Also, if the `callback` query string is set *and* is valid, the returned result 
 ##Todo
 
 - ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
-- support for bulk inserts in `POST`
+- ~~support for bulk inserts in `POST`~~
 - ~~support for HTTP method overrides using the `X-HTTP-Method-Override` header~~
 - ~~support for JSON-P responses~~
 
