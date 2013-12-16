@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.5.0 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.6.0 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -451,11 +451,21 @@ class ArrestDB
 
 				if ($result[$hash]->execute($data) === true)
 				{
+					$sequence = null;
+
+					if (strncmp('pgsql', $db->getAttribute(\PDO::ATTR_DRIVER_NAME), 5) === 0)
+					{
+						if (sscanf($query, 'INSERT INTO %s', $sequence) > 0)
+						{
+							$sequence = sprintf('%s_id_seq', trim($sequence, '`'));
+						}
+					}
+
 					switch (strstr($query, ' ', true))
 					{
 						case 'INSERT':
 						case 'REPLACE':
-							return $db->lastInsertId();
+							return $db->lastInsertId($sequence);
 
 						case 'UPDATE':
 						case 'DELETE':
@@ -490,18 +500,17 @@ class ArrestDB
 				{
 					$options += array
 					(
-						\PDO::ATTR_TIMEOUT => 0,
+						\PDO::ATTR_TIMEOUT => 3,
 					);
 
 					$db = new \PDO(sprintf('sqlite:%s', $dsn[1]), null, null, $options);
 					$pragmas = array
 					(
-						'busy_timeout' => '0',
+						'automatic_index' => 'ON',
 						'cache_size' => '8192',
-						'encoding' => '"UTF-8"',
 						'foreign_keys' => 'ON',
 						'journal_size_limit' => '67110000',
-						'legacy_file_format' => 'OFF',
+						'locking_mode' => 'NORMAL',
 						'page_size' => '4096',
 						'recursive_triggers' => 'ON',
 						'secure_delete' => 'ON',
@@ -513,15 +522,15 @@ class ArrestDB
 
 					if (strncasecmp('WIN', PHP_OS, 3) !== 0)
 					{
+						$memory = 131072;
+ 
 						if (($page = intval(shell_exec('getconf PAGESIZE'))) > 0)
 						{
 							$pragmas['page_size'] = $page;
 						}
-
-						if ((is_file('/proc/meminfo') === true) && (is_readable('/proc/meminfo') === true))
+ 
+						if (is_readable('/proc/meminfo') === true)
 						{
-							$memory = 131072;
-
 							if (is_resource($handle = fopen('/proc/meminfo', 'rb')) === true)
 							{
 								while (($line = fgets($handle, 1024)) !== false)
@@ -531,13 +540,13 @@ class ArrestDB
 										$memory = round($memory / 131072) * 131072; break;
 									}
 								}
-
+ 
 								fclose($handle);
 							}
-
-							$pragmas['cache_size'] = intval($memory * 0.25 / ($pragmas['page_size'] / 1024));
-							$pragmas['wal_autocheckpoint'] = $pragmas['cache_size'] / 2;
 						}
+ 
+						$pragmas['cache_size'] = intval($memory * 0.25 / ($pragmas['page_size'] / 1024));
+						$pragmas['wal_autocheckpoint'] = $pragmas['cache_size'] / 2;
 					}
 
 					foreach ($pragmas as $key => $value)
@@ -546,16 +555,23 @@ class ArrestDB
 					}
 				}
 
-				else if (preg_match('~^mysql://(?:(.+?)(?::(.+?))?@)?([^/:@]++)(?::(\d++))?/(\w++)/?$~i', $query, $dsn) > 0)
+				else if (preg_match('~^(mysql|pgsql)://(?:(.+?)(?::(.+?))?@)?([^/:@]++)(?::(\d++))?/(\w++)/?$~i', $query, $dsn) > 0)
 				{
 					$options += array
 					(
 						\PDO::ATTR_AUTOCOMMIT => true,
-						\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES "utf8" COLLATE "utf8_general_ci", time_zone = "+00:00";',
-						\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
 					);
 
-					$db = new \PDO(sprintf('mysql:host=%s;port=%s;dbname=%s', $dsn[3], $dsn[4], $dsn[5]), $dsn[1], $dsn[2], $options);
+					if (strncasecmp('mysql', $query, 5) === 0)
+					{
+						$options += array
+						(
+							\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES "utf8" COLLATE "utf8_general_ci", time_zone = "+00:00";',
+							\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+						);
+					}
+
+					$db = new \PDO(sprintf('%s:host=%s;port=%s;dbname=%s', $dsn[1], $dsn[4], $dsn[5], $dsn[6]), $dsn[2], $dsn[3], $options);
 				}
 			}
 		}
