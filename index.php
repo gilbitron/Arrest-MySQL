@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.6.0 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.6.1 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -453,12 +453,9 @@ class ArrestDB
 				{
 					$sequence = null;
 
-					if (strncmp('pgsql', $db->getAttribute(\PDO::ATTR_DRIVER_NAME), 5) === 0)
+					if ((strncmp('pgsql', $db->getAttribute(\PDO::ATTR_DRIVER_NAME), 5) === 0) && (sscanf($query, 'INSERT INTO %s', $sequence) > 0))
 					{
-						if (sscanf($query, 'INSERT INTO %s', $sequence) > 0)
-						{
-							$sequence = sprintf('%s_id_seq', trim($sequence, '`'));
-						}
+						$sequence = sprintf('%s_id_seq', trim($sequence, '`'));
 					}
 
 					switch (strstr($query, ' ', true))
