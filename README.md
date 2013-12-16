@@ -1,6 +1,6 @@
 #ArrestDB
 
-ArrestDB is a "plug-n-play" RESTful API for SQLite and MySQL databases.
+ArrestDB is a "plug-n-play" RESTful API for SQLite, MySQL and PostgreSQL databases.
 
 ArrestDB provides a REST API that maps directly to your database stucture with no configuation.
 
@@ -19,7 +19,7 @@ Or, if you only want to get one customer, then you would append the customer `id
 ##Requirements
 
 - PHP 5.3+ & PDO
-- MySQL 5.1+ / SQLite 3.0+
+- SQLite / MySQL / PostgreSQL
 
 ##Installation
 
@@ -27,8 +27,9 @@ Edit `index.php` and change the `$dsn` variable located at the top, here are som
 
 - SQLite: `$dsn = 'sqlite://./path/to/database.sqlite';`
 - MySQL: `$dsn = 'mysql://[user[:pass]@]host[:port]/db/;`
+- PostgreSQL: `$dsn = 'pgsql://[user[:pass]@]host[:port]/db/;`
 
-If you want to restrict access to specific IP addresses, add them to the `$clients` array:
+If you want to restrict access to allow only specific IP addresses, add them to the `$clients` array:
 
 	$clients = array
 	(
@@ -166,6 +167,7 @@ Also, if the `callback` query string is set *and* is valid, the returned result 
 - **1.3.0** ~~support for JSON-P responses~~
 - **1.4.0** ~~support for HTTP method overrides using the `X-HTTP-Method-Override` header~~
 - **1.5.0** ~~support for bulk inserts in `POST`~~
+- **1.6.0** ~~added support for PostgreSQL~~
 
 ##Credits
 
