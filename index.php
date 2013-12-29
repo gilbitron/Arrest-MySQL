@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.6.1 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.6.2 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2013 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -583,7 +583,23 @@ class ArrestDB
 
 	public static function Reply($data)
 	{
-		if (($result = json_encode($data, 448)) !== false)
+		$bitmask = 0;
+		$options = array('UNESCAPED_SLASHES', 'UNESCAPED_UNICODE');
+
+		if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) === true)
+		{
+			$options[] = 'PRETTY_PRINT';
+		}
+
+		foreach ($options as $option)
+		{
+			if (defined('JSON_' . $option) === true)
+			{
+				$bitmask |= constant('JSON_' . $option);
+			}
+		}
+
+		if (($result = json_encode($data, $bitmask)) !== false)
 		{
 			$callback = null;
 
