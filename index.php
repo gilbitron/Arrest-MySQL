@@ -593,10 +593,7 @@ class ArrestDB
 
 		foreach ($options as $option)
 		{
-			if (defined('JSON_' . $option) === true)
-			{
-				$bitmask |= constant('JSON_' . $option);
-			}
+			$bitmask |= (defined('JSON_' . $option) === true) ? constant('JSON_' . $option) : 0;
 		}
 
 		if (($result = json_encode($data, $bitmask)) !== false)
