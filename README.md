@@ -175,6 +175,8 @@ Ajax-like requests will be minified, whereas normal browser requests will be hum
 
 ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Arrest-MySQL) with several optimizations and additional features.
 
+[![Donate Bitcoins](https://coinbase.com/assets/buttons/donation_small.png)](https://coinbase.com/checkouts/89e8aa2876ba534f9db3fafa8be4e5fa)
+
 ##License (MIT)
 
 Copyright (c) 2013 Alix Axel (alix.axel@gmail.com).
