@@ -161,6 +161,8 @@ Also, if the `callback` query string is set *and* is valid, the returned result 
 
 	callback(JSON);
 
+Ajax-like requests will be minified, whereas normal browser requests will be human-readable.
+
 ##Changelog
 
 - **1.2.0** ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
