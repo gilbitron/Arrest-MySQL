@@ -170,6 +170,7 @@ Ajax-like requests will be minified, whereas normal browser requests will be hum
 - **1.4.0** ~~support for HTTP method overrides using the `X-HTTP-Method-Override` header~~
 - **1.5.0** ~~support for bulk inserts in `POST`~~
 - **1.6.0** ~~added support for PostgreSQL~~
+- **1.7.0** ~~fixed PostgreSQL connection bug, other minor improvements~~
 
 ##Credits
 
@@ -177,6 +178,6 @@ ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Ar
 
 ##License (MIT)
 
-Copyright (c) 2013 Alix Axel (alix.axel@gmail.com).
+Copyright (c) 2014 Alix Axel (alix.axel@gmail.com).
 
 [![Donate Bitcoins](https://coinbase.com/assets/buttons/donation_small.png)](https://coinbase.com/checkouts/89e8aa2876ba534f9db3fafa8be4e5fa)
