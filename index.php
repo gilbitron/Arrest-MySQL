@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.7.0 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.7.1 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2014 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -439,7 +439,7 @@ class ArrestDB
 			{
 				if (strncasecmp($db->getAttribute(\PDO::ATTR_DRIVER_NAME), 'mysql', 5) === 0)
 				{
-					$query = str_replace('"', '`', $query);
+					$query = strtr($query, '"', '`');
 				}
 
 				if (empty($result[$hash = crc32($query)]) === true)
