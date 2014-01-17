@@ -40,6 +40,17 @@ If you want to restrict access to allow only specific IP addresses, add them to 
 
 After you're done editing the file, place it in a public directory (feel free to change the filename).
 
+If you're using Apache, you can use the following `mod_rewrite` rules in a `.htaccess` file:
+
+```apache
+<IfModule mod_rewrite.c>
+	RewriteEngine	On
+	RewriteCond		%{REQUEST_FILENAME}	!-d
+	RewriteCond		%{REQUEST_FILENAME}	!-f
+	RewriteRule		^(.*)$ index.php/$1	[L,QSA]
+</IfModule>
+```
+
 ***Nota bene:*** You must access the file directly, including it from another file won't work.
 
 ##API Design
