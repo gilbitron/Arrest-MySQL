@@ -31,12 +31,14 @@ Edit `index.php` and change the `$dsn` variable located at the top, here are som
 
 If you want to restrict access to allow only specific IP addresses, add them to the `$clients` array:
 
-	$clients = array
-	(
-		'127.0.0.1',
-		'127.0.0.2',
-		'127.0.0.3',
-	);
+```php
+$clients = array
+(
+	'127.0.0.1',
+	'127.0.0.2',
+	'127.0.0.3',
+);
+```
 
 After you're done editing the file, place it in a public directory (feel free to change the filename).
 
@@ -111,51 +113,59 @@ As of version 1.5.0, it's also possible to atomically `INSERT` a batch of record
 
 All responses are in the JSON format. A `GET` response from the `customers` table might look like this:
 
-	[
-	    {
-	        "id": "114",
-	        "customerName": "Australian Collectors, Co.",
-	        "contactLastName": "Ferguson",
-	        "contactFirstName": "Peter",
-	        "phone": "123456",
-	        "addressLine1": "636 St Kilda Road",
-	        "addressLine2": "Level 3",
-	        "city": "Melbourne",
-	        "state": "Victoria",
-	        "postalCode": "3004",
-	        "country": "Australia",
-	        "salesRepEmployeeNumber": "1611",
-	        "creditLimit": "117300"
-	    },
-	    ...
-	]
+```json
+[
+    {
+        "id": "114",
+        "customerName": "Australian Collectors, Co.",
+        "contactLastName": "Ferguson",
+        "contactFirstName": "Peter",
+        "phone": "123456",
+        "addressLine1": "636 St Kilda Road",
+        "addressLine2": "Level 3",
+        "city": "Melbourne",
+        "state": "Victoria",
+        "postalCode": "3004",
+        "country": "Australia",
+        "salesRepEmployeeNumber": "1611",
+        "creditLimit": "117300"
+    },
+    ...
+]
+```
 
 Successful `POST` responses will look like:
 
-	{
-	    "success": {
-	        "code": 201,
-	        "status": "Created"
-	    }
-	}
+```json
+{
+    "success": {
+        "code": 201,
+        "status": "Created"
+    }
+}
+```
 
 Successful `PUT` and `DELETE` responses will look like:
 
-	{
-	    "success": {
-	        "code": 200,
-	        "status": "OK"
-	    }
-	}
+```json
+{
+    "success": {
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
 
 Errors are expressed in the format:
 
-	{
-	    "error": {
-	        "code": 400,
-	        "status": "Bad Request"
-	    }
-	}
+```json
+{
+    "error": {
+        "code": 400,
+        "status": "Bad Request"
+    }
+}
+```
 
 The following codes and message are avaiable:
 
@@ -170,7 +180,9 @@ The following codes and message are avaiable:
 
 Also, if the `callback` query string is set *and* is valid, the returned result will be a [JSON-P response](http://en.wikipedia.org/wiki/JSONP):
 
-	callback(JSON);
+```javascript
+callback(JSON);
+```
 
 Ajax-like requests will be minified, whereas normal browser requests will be human-readable.
 
