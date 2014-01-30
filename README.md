@@ -194,6 +194,7 @@ Ajax-like requests will be minified, whereas normal browser requests will be hum
 - **1.5.0** ~~support for bulk inserts in `POST`~~
 - **1.6.0** ~~added support for PostgreSQL~~
 - **1.7.0** ~~fixed PostgreSQL connection bug, other minor improvements~~
+- **1.8.0** ~~fixed POST / PUT bug introduced in 1.5.0~~
 
 ##Credits
 
