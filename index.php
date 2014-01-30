@@ -9,7 +9,7 @@ $clients = array
 * The MIT License
 * http://creativecommons.org/licenses/MIT/
 *
-* ArrestDB 1.7.1 (github.com/alixaxel/ArrestDB/)
+* ArrestDB 1.8.0 (github.com/alixaxel/ArrestDB/)
 * Copyright (c) 2014 Alix Axel <alix.axel@gmail.com>
 **/
 
@@ -290,12 +290,12 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 
 			foreach ($row as $key => $value)
 			{
-				$data[sprintf('"%s"', $key)] = '?';
+				$data[sprintf('"%s"', $key)] = $value;
 			}
 
 			$query = array
 			(
-				sprintf('INSERT INTO "%s" (%s) VALUES (%s)', $table, implode(', ', array_keys($data)), implode(', ', $data)),
+				sprintf('INSERT INTO "%s" (%s) VALUES (%s)', $table, implode(', ', array_keys($data)), implode(', ', array_fill(0, count($data), '?'))),
 			);
 
 			$queries[] = array
@@ -385,7 +385,7 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 		);
 
 		$query = sprintf('%s;', implode(' ', $query));
-		$result = ArrestDB::Query($query, $GLOBALS['_PUT']);
+		$result = ArrestDB::Query($query, $GLOBALS['_PUT'], $id);
 
 		if ($result === false)
 		{
@@ -574,7 +574,7 @@ class ArrestDB
 			}
 		}
 
-		catch (\Exception $e)
+		catch (\Exception $exception)
 		{
 			return false;
 		}
