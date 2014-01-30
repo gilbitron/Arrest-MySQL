@@ -100,6 +100,10 @@ Please note that `GET` calls accept the following query string variables:
 
 Additionally, `POST` and `PUT` requests accept JSON-encoded and/or zlib-compressed payloads.
 
+> `POST` and `PUT` requests are only able to parse data encoded in `application/x-www-form-urlencoded`.
+
+> Support for `multipart/form-data` payloads will be added in the future.
+
 If your REST client does not support certain requests, you can use the `X-HTTP-Method-Override` header:
 
 - `PUT` = `POST` + `X-HTTP-Method-Override: PUT`
