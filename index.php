@@ -242,13 +242,12 @@ if (in_array($http = strtoupper($_SERVER['REQUEST_METHOD']), array('POST', 'PUT'
 
 	if ((array_key_exists('CONTENT_TYPE', $_SERVER) === true) && (empty($data) !== true))
 	{
-		$contenttype = explode(";",$_SERVER['CONTENT_TYPE'])[0];
-		if (strcasecmp($contenttype, 'application/json') === 0)
+		if (strncasecmp($_SERVER['CONTENT_TYPE'], 'application/json', 16) === 0)
 		{
 			$GLOBALS['_' . $http] = json_decode($data, true);
 		}
 
-		else if ((strcasecmp($contenttype, 'application/x-www-form-urlencoded') === 0) && (strcasecmp($_SERVER['REQUEST_METHOD'], 'PUT') === 0))
+		else if ((strncasecmp($_SERVER['CONTENT_TYPE'], 'application/x-www-form-urlencoded', 33) === 0) && (strcasecmp($_SERVER['REQUEST_METHOD'], 'PUT') === 0))
 		{
 			parse_str($data, $GLOBALS['_' . $http]);
 		}
