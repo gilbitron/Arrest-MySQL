@@ -20,28 +20,14 @@ if (strcmp(PHP_SAPI, 'cli') === 0)
 
 if ((empty($clients) !== true) && (in_array($_SERVER['REMOTE_ADDR'], (array) $clients) !== true))
 {
-	$result = array
-	(
-		'error' => array
-		(
-			'code' => 403,
-			'status' => 'Forbidden',
-		),
-	);
+	$result = ArrestDB::$FORBIDDEN;
 
 	exit(ArrestDB::Reply($result));
 }
 
 else if (ArrestDB::Query($dsn) === false)
 {
-	$result = array
-	(
-		'error' => array
-		(
-			'code' => 503,
-			'status' => 'Service Unavailable',
-		),
-	);
+	$result = ArrestDB::$SERVICE_UNAVAILABLE;
 
 	exit(ArrestDB::Reply($result));
 }
@@ -89,26 +75,12 @@ ArrestDB::Serve('GET', '/(#any)/(#any)/(#any)', function ($table, $id, $data)
 
 	if ($result === false)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 404,
-				'status' => 'Not Found',
-			),
-		);
+		$result = ArrestDB::$NOT_FOUND;
 	}
 
 	else if (empty($result) === true)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 204,
-				'status' => 'No Content',
-			),
-		);
+		$result = ArrestDB::$NO_CONTENT;
 	}
 
 	return ArrestDB::Reply($result);
@@ -154,26 +126,12 @@ ArrestDB::Serve('GET', '/(#any)/(#num)?', function ($table, $id = null)
 
 	if ($result === false)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 404,
-				'status' => 'Not Found',
-			),
-		);
+		$result = ArrestDB::$NOT_FOUND;
 	}
 
 	else if (empty($result) === true)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 204,
-				'status' => 'No Content',
-			),
-		);
+		$result = ArrestDB::$NO_CONTENT;
 	}
 
 	else if (isset($id) === true)
@@ -196,38 +154,17 @@ ArrestDB::Serve('DELETE', '/(#any)/(#num)', function ($table, $id)
 
 	if ($result === false)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 404,
-				'status' => 'Not Found',
-			),
-		);
+		$result = ArrestDB::$NOT_FOUND;
 	}
 
 	else if (empty($result) === true)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 204,
-				'status' => 'No Content',
-			),
-		);
+		$result = ArrestDB::$NO_CONTENT;
 	}
 
 	else
 	{
-		$result = array
-		(
-			'success' => array
-			(
-				'code' => 200,
-				'status' => 'OK',
-			),
-		);
+		$result = ArrestDB::$OK;
 	}
 
 	return ArrestDB::Reply($result);
@@ -265,14 +202,7 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 {
 	if (empty($_POST) === true)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 204,
-				'status' => 'No Content',
-			),
-		);
+		$result = ArrestDB::$NO_CONTENT;
 	}
 
 	else if (is_array($_POST) === true)
@@ -330,26 +260,12 @@ ArrestDB::Serve('POST', '/(#any)', function ($table)
 
 		if ($result === false)
 		{
-			$result = array
-			(
-				'error' => array
-				(
-					'code' => 409,
-					'status' => 'Conflict',
-				),
-			);
+			$result = ArrestDB::$CONFLICT;
 		}
 
 		else
 		{
-			$result = array
-			(
-				'success' => array
-				(
-					'code' => 201,
-					'status' => 'Created',
-				),
-			);
+			$result = ArrestDB::$CREATED;
 		}
 	}
 
@@ -360,14 +276,7 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 {
 	if (empty($GLOBALS['_PUT']) === true)
 	{
-		$result = array
-		(
-			'error' => array
-			(
-				'code' => 204,
-				'status' => 'No Content',
-			),
-		);
+		$result = ArrestDB::$NO_CONTENT;
 	}
 
 	else if (is_array($GLOBALS['_PUT']) === true)
@@ -389,45 +298,76 @@ ArrestDB::Serve('PUT', '/(#any)/(#num)', function ($table, $id)
 
 		if ($result === false)
 		{
-			$result = array
-			(
-				'error' => array
-				(
-					'code' => 409,
-					'status' => 'Conflict',
-				),
-			);
+			$result = ArrestDB::$CONFLICT;
 		}
 
 		else
 		{
-			$result = array
-			(
-				'success' => array
-				(
-					'code' => 200,
-					'status' => 'OK',
-				),
-			);
+			$result = ArrestDB::$OK;
 		}
 	}
 
 	return ArrestDB::Reply($result);
 });
 
-$result = array
-(
-	'error' => array
-	(
-		'code' => 400,
-		'status' => 'Bad Request',
-	),
-);
+$result = ArrestDB::$BAD_REQUEST;
 
 exit(ArrestDB::Reply($result));
 
 class ArrestDB
 {
+
+	// Result Messages
+	public static $OK = array(
+		'success' => array(
+			'code' => 200,
+			'status' => 'OK',
+		),
+	);
+	public static $CREATED = array(
+		'success' => array(
+			'code' => 201,
+			'status' => 'Created',
+		),
+	);
+	public static $NO_CONTENT = array(
+		'error' => array(
+			'code' => 204,
+			'status' => 'No Content',
+		),
+	);
+	public static $BAD_REQUEST = array(
+		'error' => array(
+			'code' => 400,
+			'status' => 'Bad Request',
+		),
+	);
+	public static $FORBIDDEN = array(
+		'error' => array(
+			'code' => 403,
+			'status' => 'Forbidden'
+		)
+	);
+	public static $NOT_FOUND = array(
+		'error' => array(
+			'code' => 404,
+			'status' => 'Not Found',
+		),
+	);
+	public static $CONFLICT = array(
+		'error' => array(
+			'code' => 409,
+			'status' => 'Conflict',
+		),
+	);
+	public static $SERVICE_UNAVAILABLE = array(
+		'error' => array(
+			'code' => 503,
+			'status' => 'Service Unavailable',
+		),
+	);
+
+	// Operating Functions
 	public static function Query($query = null)
 	{
 		static $db = null;
