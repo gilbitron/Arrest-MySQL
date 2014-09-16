@@ -18,7 +18,7 @@ Or, if you only want to get one customer, then you would append the customer `id
 
 ##Requirements
 
-- PHP 5.3+ & PDO
+- PHP 5.4+ & PDO
 - SQLite / MySQL / PostgreSQL
 
 ##Installation
@@ -199,6 +199,7 @@ Ajax-like requests will be minified, whereas normal browser requests will be hum
 - **1.6.0** ~~added support for PostgreSQL~~
 - **1.7.0** ~~fixed PostgreSQL connection bug, other minor improvements~~
 - **1.8.0** ~~fixed POST / PUT bug introduced in 1.5.0~~
+- **1.9.0** ~~updated to PHP 5.4 short array syntax~~
 
 ##Credits
 
