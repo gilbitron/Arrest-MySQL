@@ -1,95 +1,119 @@
-#Arrest MySQL
+#ArrestDB
 
-Arrest MySQL is a "plug-n-play" RESTful API for your MySQL database. Arrest MySQL provides a REST API that maps directly to your database stucture with no configuation.
+ArrestDB is a "plug-n-play" RESTful API for SQLite, MySQL and PostgreSQL databases.
 
-For example lets suppose you have set up Arrest MySQL at http://api.example.com and your database has a table in it called "customers". To get a list of customers you would simply need to do:
+ArrestDB provides a REST API that maps directly to your database stucture with no configuation.
 
-```GET http://api.example.com/customers```
+Lets suppose you have set up ArrestDB at `http://api.example.com/` and that your database has a table named `customers`.
+To get a list of all the customers in the table you would simply need to do:
 
-Where "customers" is the table name. As a response you would get a JSON formatted list of customers. Or say you only want to get one customer, then you would do this:
+	GET http://api.example.com/customers/
 
-```GET http://api.example.com/customers/123```
+As a response, you would get a JSON formatted list of customers.
 
-Where "123" here is the ID of the customer. For more information on using Arrest MySQL see the Usage section below.
+Or, if you only want to get one customer, then you would append the customer `id` to the URL:
+
+	GET http://api.example.com/customers/123/
 
 ##Requirements
 
-1. Apache Server with PHP 5+
-2. MySQL 5+
+- PHP 5.4+ & PDO
+- SQLite / MySQL / PostgreSQL
 
-##30 Second Installation
+##Installation
 
-Simply put these files into a folder somewhere on your server. Then edit config.php and fill in your database details and you are good to go.
+Edit `index.php` and change the `$dsn` variable located at the top, here are some examples:
 
-##Usage
+- SQLite: `$dsn = 'sqlite://./path/to/database.sqlite';`
+- MySQL: `$dsn = 'mysql://[user[:pass]@]host[:port]/db/;`
+- PostgreSQL: `$dsn = 'pgsql://[user[:pass]@]host[:port]/db/;`
 
-If you edit index.php you will see how incredibly simple it is to set up Arrest MySQL. Note that you are left to **provide your own authentication** for your API when using Arrest MySQL.
+If you want to restrict access to allow only specific IP addresses, add them to the `$clients` array:
 
 ```php
-<?php
-require('config.php');
-require('lib/arrest-mysql.php');
-
-try {
-
-    /**
-     * Note: You will need to provide a base_uri as the second param if this file 
-     * resides in a subfolder e.g. if the URL to this file is http://example.com/some/sub/folder/index.php
-     * then the base_uri should be "some/sub/folder"
-     */
-    $arrest = new ArrestMySQL($db_config);
-    
-    /**
-     * By default it is assumed that the primary key of a table is "id". If this
-     * is not the case then you can set a custom index by using the
-     * set_table_index($table, $field) method
-     */
-    //$arrest->set_table_index('my_table', 'some_index');
-    
-    $arrest->rest();
-    
-} catch (Exception $e) {
-    echo $e;
-}
-?>
+$clients = array
+(
+	'127.0.0.1',
+	'127.0.0.2',
+	'127.0.0.3',
+);
 ```
 
-###API Design
+After you're done editing the file, place it in a public directory (feel free to change the filename).
 
-The actual API design is very straight forward and follows the design patterns of most other API's.
+If you're using Apache, you can use the following `mod_rewrite` rules in a `.htaccess` file:
 
-```
-create > POST   /table
-read   > GET    /table[/id]
-update > PUT    /table/id
-delete > DELETE /table/id
-```
-
-To put this into practice below are some example of how you would use an Arrest MySQL API:
-
-```
-// Get all rows from the "customers" table
-GET http://api.example.com/customers
-// Get a single row from the "customers" table (where "123" is the ID)
-GET http://api.example.com/customers/123
-// Get 50 rows from the "customers" table
-GET http://api.example.com/customers?limit=50
-// Get 50 rows from the "customers" table ordered by the "date" field
-GET http://api.example.com/customers?limit=50&order_by=date&order=desc
-
-// Create a new row in the "customers" table where the POST data corresponds to the database fields
-POST http://api.example.com/customers
-
-// Update customer "123" in the "customers" table where the PUT data corresponds to the database fields
-PUT http://api.example.com/customers/123
-
-// Delete customer "123" from the "customers" table
-DELETE http://api.example.com/customers/123
+```apache
+<IfModule mod_rewrite.c>
+	RewriteEngine	On
+	RewriteCond		%{REQUEST_FILENAME}	!-d
+	RewriteCond		%{REQUEST_FILENAME}	!-f
+	RewriteRule		^(.*)$ index.php/$1	[L,QSA]
+</IfModule>
 ```
 
-###Responses
+***Nota bene:*** You must access the file directly, including it from another file won't work.
 
-All responses are in the JSON format. For example a GET response from the "customers" table might look like:
+##API Design
+
+The actual API design is very straightforward and follows the design patterns of the majority of APIs.
+
+	(C)reate > POST   /table
+	(R)ead   > GET    /table[/id]
+	(R)ead   > GET    /table[/column/content]
+	(U)pdate > PUT    /table/id
+	(D)elete > DELETE /table/id
+
+To put this into practice below are some example of how you would use the ArrestDB API:
+
+	# Get all rows from the "customers" table
+	GET http://api.example.com/customers/
+
+	# Get a single row from the "customers" table (where "123" is the ID)
+	GET http://api.example.com/customers/123/
+
+	# Get all rows from the "customers" table where the "country" field matches "Australia" (`LIKE`)
+	GET http://api.example.com/customers/country/Australia/
+
+	# Get 50 rows from the "customers" table
+	GET http://api.example.com/customers/?limit=50
+
+	# Get 50 rows from the "customers" table ordered by the "date" field
+	GET http://api.example.com/customers/?limit=50&by=date&order=desc
+
+	# Create a new row in the "customers" table where the POST data corresponds to the database fields
+	POST http://api.example.com/customers/
+
+	# Update customer "123" in the "customers" table where the PUT data corresponds to the database fields
+	PUT http://api.example.com/customers/123/
+
+	# Delete customer "123" from the "customers" table
+	DELETE http://api.example.com/customers/123/
+
+Please note that `GET` calls accept the following query string variables:
+
+- `by` (column to order by)
+  - `order` (order direction: `ASC` or `DESC`)
+- `limit` (`LIMIT x` SQL clause)
+  - `offset` (`OFFSET x` SQL clause)
+
+Additionally, `POST` and `PUT` requests accept JSON-encoded and/or zlib-compressed payloads.
+
+> `POST` and `PUT` requests are only able to parse data encoded in `application/x-www-form-urlencoded`.
+> Support for `multipart/form-data` payloads will be added in the future.
+
+If your client does not support certain methods, you can use the `X-HTTP-Method-Override` header:
+
+- `PUT` = `POST` + `X-HTTP-Method-Override: PUT`
+- `DELETE` = `GET` + `X-HTTP-Method-Override: DELETE`
+
+Alternatively, you can also override the HTTP method by using the `_method` query string parameter.
+
+Since 1.5.0, it's also possible to atomically `INSERT` a batch of records by POSTing an array of arrays.
+
+##Responses
+
+All responses are in the JSON format. A `GET` response from the `customers` table might look like this:
 
 ```json
 [
@@ -112,52 +136,73 @@ All responses are in the JSON format. For example a GET response from the "custo
 ]
 ```
 
-Successful POST, PUT, and DELETE responses will look like
+Successful `POST` responses will look like:
 
 ```json
 {
     "success": {
-        "message": "Success",
-        "code": 200
+        "code": 201,
+        "status": "Created"
     }
 }
 ```
 
-Errors are in the format:
+Successful `PUT` and `DELETE` responses will look like:
+
+```json
+{
+    "success": {
+        "code": 200,
+        "status": "OK"
+    }
+}
+```
+
+Errors are expressed in the format:
 
 ```json
 {
     "error": {
-        "message": "No Content",
-        "code": 204
+        "code": 400,
+        "status": "Bad Request"
     }
 }
 ```
 
 The following codes and message are avaiable:
 
-* 200 Success
-* 204 No Content
-* 404 Not Found
+* `200` OK
+* `201` Created
+* `204` No Content
+* `400` Bad Request
+* `403` Forbidden
+* `404` Not Found
+* `409` Conflict
+* `503` Service Unavailable
+
+Also, if the `callback` query string is set *and* is valid, the returned result will be a [JSON-P response](http://en.wikipedia.org/wiki/JSONP):
+
+```javascript
+callback(JSON);
+```
+
+Ajax-like requests will be minified, whereas normal browser requests will be human-readable.
+
+##Changelog
+
+- **1.2.0** ~~support for JSON payloads in `POST` and `PUT` (optionally gzipped)~~
+- **1.3.0** ~~support for JSON-P responses~~
+- **1.4.0** ~~support for HTTP method overrides using the `X-HTTP-Method-Override` header~~
+- **1.5.0** ~~support for bulk inserts in `POST`~~
+- **1.6.0** ~~added support for PostgreSQL~~
+- **1.7.0** ~~fixed PostgreSQL connection bug, other minor improvements~~
+- **1.8.0** ~~fixed POST / PUT bug introduced in 1.5.0~~
+- **1.9.0** ~~updated to PHP 5.4 short array syntax~~
 
 ##Credits
 
-Arrest MySQL was created by [Gilbert Pellegrom](http://gilbert.pellegrom.me) from [Dev7studios](http://dev7studios.com).
-
-Please contribute by [reporting bugs](Arrest-MySQL/issues) and submitting [pull requests](Arrest-MySQL/pulls).
+ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Arrest-MySQL) with several optimizations and additional features.
 
 ##License (MIT)
 
-Copyright © 2013 Dev7studios
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation 
-files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, 
-modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
-is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR 
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Copyright (c) 2014 Alix Axel (alix.axel+github@gmail.com).
