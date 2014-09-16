@@ -5,12 +5,11 @@ ArrestDB is a "plug-n-play" RESTful API for SQLite, MySQL and PostgreSQL databas
 ArrestDB provides a REST API that maps directly to your database stucture with no configuation.
 
 Lets suppose you have set up ArrestDB at `http://api.example.com/` and a table named `customers`.
-
 To get a list of customers you would simply need to do:
 
 	GET http://api.example.com/customers/
 
-Where `customers` is the table name. As a response you would get a JSON formatted list of customers.
+As a response, you would get a JSON formatted list of customers.
 
 Or, if you only want to get one customer, then you would append the customer `id` to the URL:
 
@@ -101,17 +100,16 @@ Please note that `GET` calls accept the following query string variables:
 Additionally, `POST` and `PUT` requests accept JSON-encoded and/or zlib-compressed payloads.
 
 > `POST` and `PUT` requests are only able to parse data encoded in `application/x-www-form-urlencoded`.
-
 > Support for `multipart/form-data` payloads will be added in the future.
 
-If your REST client does not support certain requests, you can use the `X-HTTP-Method-Override` header:
+If your client does not support certain methods, you can use the `X-HTTP-Method-Override` header:
 
 - `PUT` = `POST` + `X-HTTP-Method-Override: PUT`
 - `DELETE` = `GET` + `X-HTTP-Method-Override: DELETE`
 
 Alternatively, you can also override the HTTP method by using the `_method` query string parameter.
 
-As of version 1.5.0, it's also possible to atomically `INSERT` a batch of records by POSTing an array of arrays.
+Since 1.5.0, it's also possible to atomically `INSERT` a batch of records by POSTing an array of arrays.
 
 ##Responses
 
@@ -207,6 +205,4 @@ ArrestDB is a complete rewrite of [Arrest-MySQL](https://github.com/gilbitron/Ar
 
 ##License (MIT)
 
-Copyright (c) 2014 Alix Axel (alix.axel@gmail.com).
-
-[![Donate Bitcoins](https://coinbase.com/assets/buttons/donation_small.png)](https://coinbase.com/checkouts/89e8aa2876ba534f9db3fafa8be4e5fa)
+Copyright (c) 2014 Alix Axel (alix.axel+github@gmail.com).
