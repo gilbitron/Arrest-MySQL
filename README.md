@@ -4,8 +4,8 @@ ArrestDB is a "plug-n-play" RESTful API for SQLite, MySQL and PostgreSQL databas
 
 ArrestDB provides a REST API that maps directly to your database stucture with no configuation.
 
-Lets suppose you have set up ArrestDB at `http://api.example.com/` and a table named `customers`.
-To get a list of customers you would simply need to do:
+Lets suppose you have set up ArrestDB at `http://api.example.com/` and that your database has a table named `customers`.
+To get a list of all the customers in the table you would simply need to do:
 
 	GET http://api.example.com/customers/
 
