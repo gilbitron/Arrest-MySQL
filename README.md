@@ -1,3 +1,5 @@
+### This repo is no longer maintained. If you would like to take over ownership please [get in touch](mailto:gilbert@pellegrom.me).
+
 #Arrest MySQL
 
 Arrest MySQL is a "plug-n-play" RESTful API for your MySQL database. Arrest MySQL provides a REST API that maps directly to your database stucture with no configuation.
