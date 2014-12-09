@@ -15,7 +15,15 @@
  */
 require('lib/db.php');
 
+define('DEBUG_TABLE_ERROR_MSG', 'Either the table does not exists or you have misconfigured the subdir (base_uri) in index.php');
+
 class ArrestMySQL {
+
+    /**
+     * Makes passing boolean parameters easier to read and understand
+     */
+    const DEBUG_ON = true;
+    const DEBUG_OFF = false;
 
     /**
      * The instance of Database
@@ -41,6 +49,12 @@ class ArrestMySQL {
      * @var array
      */
     private $table_index;
+    /**
+     * Debug mode
+     *
+     * @var boolean
+     */
+    private $debug;
 
     /**
      * Create an instance, optionally setting a base URI
@@ -58,14 +72,15 @@ class ArrestMySQL {
      * @param string $base_uri Optional base URI if not in root folder
      * @access public
      */
-    public function __construct($db_config, $base_uri = '') 
+    public function __construct($db_config, $base_uri = '', $debug = false) 
     {
         $this->db = new Database($db_config);
         if(!$this->db->init()) throw new Exception($this->db->get_error());
         
+	$this->debug = $debug;
+	$this->table_index = array();
 	    $this->db_structure = $this->map_db($db_config['database']);
         $this->segments = $this->get_uri_segments($base_uri);
-        $this->table_index = array();
     }
     
     /**
@@ -132,6 +147,23 @@ class ArrestMySQL {
     	    $this->db->query('SHOW COLUMNS FROM '. $table_name);
     	    $fields = $this->db->fetch_all();
     	    $tables_arr[$table_name] = $fields;
+	    
+	    // loop thru table columns to find any PRIMARY keys
+            $fields_count = count($fields);
+            $fieldKeys = array();
+            for ($i = 0; $i < $fields_count; $i++) {
+                $field = $fields[$i];
+
+                // @NOTE: If Key is PRI, the column is a PRIMARY KEY or is one of the columns in a multiple-column (composite primary key) PRIMARY KEY.
+                if (strcasecmp($field['Key'], 'PRI') == 0) { // binary safe case insensitive comparison
+                    array_push($fieldKeys, $field['Field']);
+                }
+            }
+
+            // @WARNING: as lib/db.php is using index() as field=value in WHERE CLAUSE, on tables with composite PRIMARY KEY extract last of the keys
+            if (count($fieldKeys) > 0) {
+                $this->table_index[$table_name] = end($fieldKeys);
+            }
 	    }
 	    return $tables_arr;
     }
@@ -188,6 +220,12 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
@@ -223,6 +261,13 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'index' => $id,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
@@ -234,6 +279,8 @@ class ArrestMySQL {
                      ->where($index, $id)
                      ->query();
             if($result = $this->db->fetch_array()){
+		// map to utf8 to avoid broken json
+		$result = array_map('utf8_encode', $result);
                 die(json_encode($result));
             } else {
                 $error = array('error' => array(
@@ -275,6 +322,13 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'index' => $id,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
@@ -318,6 +372,13 @@ class ArrestMySQL {
                 'message' => 'Not Found',
                 'code' => 404
             ));
+	    if ($this->debug) {
+		$error['debug'] = array(
+		    'table' => $table,
+		    'index' => $id,
+		    'warning' => DEBUG_TABLE_ERROR_MSG,
+		);
+	    }
             die(json_encode($error));
         }
         
